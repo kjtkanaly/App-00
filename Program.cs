@@ -1,22 +1,7 @@
 ﻿namespace App_00;
 
-class HelloWorld
+static class TerminalUtilites
 {
-    public float _userInput;
-
-    public void Main()
-    {
-        Console.WriteLine("Hello, World!");
-    }
-
-    public void ParseAndSquare()
-    {
-        // Reading the user's input and try and parse the value
-        float.TryParse(Console.ReadLine(), out _userInput);
-
-        // Out the Square Value
-        Console.WriteLine($"User's Value Squared: {MathF.Pow(_userInput, 2)}");
-    }
 }
 
 class Program
@@ -38,14 +23,40 @@ class Program
         // Log the bot in via the token
         await _client.LoginAsync(Discord.TokenType.Bot, token);
         await _client.StartAsync();
+        
+        // Listen for the user input
+        while(true)
+        {
+            string? input = Console.ReadLine();
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Display received command
+                Console.WriteLine($"Received Command: {input}");
 
-        // Block this task until the program is killed
-        await Task.Delay(-1);
+                if (input.Equals("kill-bot"))
+                {
+                    await BotLogOut();
+                    break;
+                }
+            }
+        }
+
+        Console.WriteLine($"Program done... Goodbye!");
     }
 
     private static Task Log(Discord.LogMessage msg)
     {
         Console.WriteLine(msg.ToString());
         return Task.CompletedTask;
+    }
+
+    private static async Task BotLogOut()
+    {
+        Console.WriteLine($"Logging out...");
+        if (_client != null)
+        {
+            await _client.LogoutAsync();
+            await _client.StopAsync();
+        }
     }
 }
