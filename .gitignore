@@ -1,0 +1,63 @@
+# Ignore the Token File
+token.cfg
+
+## Build results
+bin/
+obj/
+[Ll]og/
+*.log
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Mono Auto Generated Files
+mono_crash.*
+
+## Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+## OS-generated files
+.DS_Store
+*.swp
+*~
+
+## Rider
+.idea/
+*.sln.iml
+
+## NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Ignore the .NET Core SDK files
+global.json
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# StyleCop
+StyleCopReport.xml
+
+# Others
+*.tmp
+*.bak
+*.old
+*.orig
+
+# DotCover
+*.dotCover
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Azure Pipelines
+.azure-pipelines/
+
