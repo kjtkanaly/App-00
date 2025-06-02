@@ -1,6 +1,9 @@
 # Ignore the Token File
 token.cfg
 
+# Ignore the server file
+loser-bar.json
+
 ## Build results
 bin/
 obj/
