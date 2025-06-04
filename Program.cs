@@ -144,7 +144,7 @@ class Program
             return;
         }
 
-        // Print the loaded guild options
+        // Print the loaded guild options and ask the user for their input
         Console.WriteLine($"Pick a Guild:");
         for(int i = 0; i < _guilds.Count; i++)
         {
@@ -153,7 +153,7 @@ class Program
         int guildIndex = int.Parse(GetUserInput());
         GuildInfo guild = _guilds[guildIndex];
 
-        // Await the Channel ID
+        // Print the channel options and ask the user for their input
         Console.WriteLine($"Pick a Channel:");
         for(int i = 0; i < guild._channels.Count; i++)
         {
@@ -161,14 +161,32 @@ class Program
         }
         int channelIndex = int.Parse(GetUserInput());
         ChannelInfo channel = guild._channels[channelIndex];
+
+        // Ask if the user has a limit on how many messages to load
+        Console.WriteLine($"Message Limit: ");
+        Console.WriteLine($"[0]: Default (100)");
+        Console.WriteLine($"[1]: Custom (Ex: 1, 500)");
+        int messageLimit = GetMessageLimit();
+        
+        // Ask the user if they would like to export the data after it's all been scraped
+        Console.WriteLine($"Save Data?: ");
+        Console.WriteLine($"[0]: No");
+        Console.WriteLine($"[1]: Yes");
+        bool saveData = int.Parse(GetUserInput()) == 1;
         
         // Get the content 
-        await ScrapeMessagesAsync(guild._id, channel._id);
+        await ScrapeMessagesAsync(
+            guild._id, 
+            channel._id, 
+            messageLimit, 
+            saveData);
     }
-    
+
     private static async Task ScrapeMessagesAsync(
         ulong guildID, 
-        ulong channelID)
+        ulong channelID,
+        int messageLimit,
+        bool saveData)
     {
         // Make sure the client object is set
         if (_client == null)
@@ -189,9 +207,29 @@ class Program
         
         // Get 5 messages from the text channel
         List<Discord.IMessage> messages = new List<Discord.IMessage>();
-        await foreach(var page in channel.GetMessagesAsync(limit: 100))
+        await foreach(var page in channel.GetMessagesAsync(limit: messageLimit))
         {
             messages.AddRange(page);
+        }
+
+        // Save the scraped data to a json
+        if (saveData)
+        {
+            // Create the options object
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+            // Serialize the data
+            string jsonString = JsonSerializer.Serialize(messages, options);
+
+            // Write the data to file
+            string guildNameStr = guild.Name.Replace(" ", string.Empty);
+            string channelNameStr = channel.Name.Replace(" ", string.Empty);
+            DateTime now = DateTime.Now;
+            string filename = $"{guildNameStr}-{channelNameStr}-{now.ToString("yyyy-MM-dd-HH-mm")}.json";
+            File.WriteAllText("data/" + filename, jsonString);
         }
         
         // Debug
@@ -200,4 +238,20 @@ class Program
             Console.WriteLine($"{messages[i].Timestamp}: {messages[i].Author} - {messages[i].Content}");
         }
     }
+
+    private static int GetMessageLimit()
+    {
+        // Init the message limit
+        int messageLimit = 100;
+        int index = int.Parse(GetUserInput());
+
+        // If custom limit then get user input
+        if (index == 1)
+        {
+            Console.WriteLine($"Enter Custom Limit: ");
+            messageLimit = int.Parse(GetUserInput());
+        }
+        return messageLimit;
+    }
+    
 }
